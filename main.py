@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
-from colorama import Fore, Style
 
 # Baca file CSV
 data_csv = pd.read_csv("tumor-data.csv")
@@ -11,9 +10,9 @@ data_csv = pd.read_csv("tumor-data.csv")
 # Men-Generate Gambar Yang Membuktikan Kalau Data Kita Berantakan
 def getHistogram():
     data_kosong = data_csv.isnull().sum().sum()
-    print(Fore.BLUE + f"[I] Jumlah nilai kolom yang kosong: {data_kosong}" + Style.RESET_ALL)
+    print(f"[I] Jumlah nilai kolom yang kosong: {data_kosong}")
     if data_kosong == 0:
-        print(Fore.GREEN + "[I] Data bersih" + Style.RESET_ALL)
+        print("[I] Data bersih")
     else:
         None
     # Membuat Histogram (Melihan perbedaan rentang angka)
@@ -53,14 +52,14 @@ def getElbow():
     plt.close()
 
 def doClustering():
-    print(Fore.BLUE + "[I] Memulai proses Clustering Final dengan K=2..." + Style.RESET_ALL)
+    print("[I] Memulai proses Clustering Final dengan K=2...")
     scaler = StandardScaler()
     data_csv_scaled = scaler.fit_transform(data_csv)
     kmeans = KMeans(n_clusters=2, random_state=42, n_init=10)
     label_kelompok = kmeans.fit_predict(data_csv_scaled)
     data_csv["malignant"] = label_kelompok
     data_csv.to_csv("hasil_clustering.csv", index=False)
-    print(Fore.BLUE + "[I] Total anggota masing-masing kelompok:" + Style.RESET_ALL)
+    print("[I] Total anggota masing-masing kelompok:")
     print(data_csv["malignant"].value_counts())
 
 if __name__ == "__main__":
