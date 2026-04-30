@@ -1,39 +1,70 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from colorama import Fore, Style
 
-def checkDataSetInfo():
-    """
-    # Memeriksa Isi File CSV
-    Print informasi teknis mengenai file data dan memeriksa adakah nilai yang kosong."""
-    print("\n" + "="*50 + "\n", "Informasi dasar file CSV:", "\n" + "="*50 + "\n")
-    print(df.info())
+# Baca file CSV
+data_csv = pd.read_csv("tumor-data.csv")
 
-    print("\n" + "="*50 + "\n", "Jumlah nilai yang kosong di setiap kolom file CSV", "\n" + "="*50 + "\n")
-    print(df.isnull().sum())
+# Men-Generate Gambar Yang Membuktikan Kalau Data Kita Berantakan
+def getHistogram():
+    data_kosong = data_csv.isnull().sum().sum()
+    print(Fore.BLUE + f"[I] Jumlah nilai kolom yang kosong: {data_kosong}" + Style.RESET_ALL)
+    if data_kosong == 0:
+        print(Fore.GREEN + "[I] Data bersih" + Style.RESET_ALL)
+    else:
+        None
+    # Membuat Histogram (Melihan perbedaan rentang angka)
+    plt.figure(figsize=(8,5))
+    sns.histplot(data_csv["mean area"], color="red", alpha=0.5, label="Mean Area (Luas)")
+    sns.histplot(data_csv["mean smoothness"], color="blue", alpha=0.5, label="Mean Smoothness (Kehalusan)")
+    plt.legend()
+    plt.title("Perbedaan Skala Angka Pada Data Tumor")
+    plt.savefig("Histogram-Pre-EDA.png", dpi=300)
+    plt.close()
 
-    print("\n" + "="*50 + "\n", "Sekilas isi file CSV", "\n" + "="*50 + "\n")
-    print(df.describe())
+def getHeatmap():
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(data_csv.iloc[:, :10].corr(), annot=True, cmap="coolwarm", fmt=".2f")
+    plt.title("Heatmap Korelasi Data Tumor")
+    plt.savefig("Heatmap-Pre-EDA.png")
+    plt.close()
 
-def getGraph():
-    print("Memproses visualisasi Data")
-    fig, axes = plt.subplots(1,2,figsize=(12,5))
+def getElbow():
+    # Menyamakan semua skala angka AI bisa menghitung dengan adil
+    data_csv_scaled = StandardScaler().fit_transform(data_csv)
+    # Mencari jumlah Cluster yang pas pakai Elbow Method
+    inertia = []
+    for i in range(1,11):
+        kmeans = KMeans(n_clusters=i, random_state=42, n_init=10)
+        kmeans.fit(data_csv_scaled)
+        inertia.append(kmeans.inertia_)
 
-    # Grafik kiri: Mean Smoothness
-    sns.histplot(df["mean smoothness"], kde=True, color="blue", ax=axes[0])
-    axes[0].set_title("Distribusi Mean Smoothness")
+    plt.figure(figsize=(8,5))
+    plt.plot(range(1,11), inertia, marker="o", linestyle="--", color="green")
+    plt.title("Metode Elbow")
+    plt.xlabel("Jumlah Kelompok (I)")
+    plt.ylabel("Tingkat Error")
+    plt.xticks(range(1,11))
+    plt.grid(True)
+    plt.savefig("Elbow-Post-EDA.png", dpi=300)
+    plt.close()
 
-    sns.histplot(df["mean area"], kde=True, color="red", ax=axes[1])
-    axes[1].set_title("Distribusi Mean Area")
-
-    plt.tight_layout()
-    plt.show()
-
-def main():
-    global df
-    df = pd.read_csv('tumor-data.csv')
+def doClustering():
+    print(Fore.BLUE + "[I] Memulai proses Clustering Final dengan K=2..." + Style.RESET_ALL)
+    scaler = StandardScaler()
+    data_csv_scaled = scaler.fit_transform(data_csv)
+    kmeans = KMeans(n_clusters=2, random_state=42, n_init=10)
+    label_kelompok = kmeans.fit_predict(data_csv_scaled)
+    data_csv["malignant"] = label_kelompok
+    data_csv.to_csv("hasil_clustering.csv", index=False)
+    print(Fore.BLUE + "[I] Total anggota masing-masing kelompok:" + Style.RESET_ALL)
+    print(data_csv["malignant"].value_counts())
 
 if __name__ == "__main__":
-    main() # Biarin aja di paling pertama!
-    # checkDataSetInfo()
-    getGraph()
+    getHistogram()
+    getHeatmap()
+    getElbow()
+    doClustering()
