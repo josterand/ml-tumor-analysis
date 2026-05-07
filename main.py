@@ -113,9 +113,25 @@ def finalClustering():
     df.to_csv("clustered.csv", index=False)
     print("[I] Total anggota masing-masing kelompok:\n", df["malignant"].value_counts())
 
+def clusterProfile():
+    scaler = StandardScaler()
+    df_scaled = scaler.fit_transform(df)
+    kmeans = KMeans(n_clusters=2, random_state=42)
+    clusters = kmeans.fit_predict(df_scaled)
+    df['cluster'] = clusters
+    print(df.head())
+    print("="*25)
+    df.to_csv('clustered.csv', index=False)
+    print("[I] Berhasil menyimpan data beserta clusternya ke 'clustered.csv'")
+    print("="*25)
+    print("[I] Profil karakteristik dari masing-masing cluster (rata-rata):")
+    cluster_profile = df.groupby('cluster').mean()
+    print(cluster_profile)
+
 if __name__ == "__main__":
     getDataInformation()
     getGraphBeforePreProcessing()
     getGraphAfterPreProcessing()
     elbowMethod()
     finalClustering()
+    clusterProfile()
