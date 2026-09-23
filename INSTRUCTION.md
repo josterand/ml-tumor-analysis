@@ -1,3 +1,5 @@
+# Soal UTS
+
 1. Silahkan Download Dataset
 2. Import dataset kedalam program python sesuai dengan nomor kelompok
 3. Silakan melakukan Exploratori Data Analysis (EDA) pada datasheet yang sudah ada
@@ -21,4 +23,6 @@ NB :
 4) Hasil analisis sangat berpengaruh pada nilai
 5) Penggunaan AI pada Level 3 hanya digunakan untuk penyelesaian error dan harus dilampirkan sebelum dan sesudah , Jika ketahuan melanggar nilai UTS akan mendapatkan  0
 
------------------------------------ SELAMAT MENGERJAKAN -----------------------------------
+-----------------------------------
+SELAMAT MENGERJAKAN
+-----------------------------------
